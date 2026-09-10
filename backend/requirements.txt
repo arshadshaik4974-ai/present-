@@ -1,0 +1,17 @@
+fastapi
+uvicorn[standard]
+pydantic
+pydantic-settings
+supabase
+gotrue
+python-jose[cryptography]
+passlib[bcrypt]
+python-multipart
+pytest
+httpx
+websockets
+python-dotenv
+opencv-python
+
+deepface
+tf-keras
