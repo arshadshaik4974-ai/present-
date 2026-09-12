@@ -3,6 +3,7 @@ import numpy as np
 import cv2
 from fastapi import HTTPException
 from app.repositories.face_repository import face_repository
+from app.repositories.audit_repository import audit_repository
 from app.schemas.face import FaceEnrollmentResponse, FaceProfileInDB
 from typing import List, Tuple
 import traceback
@@ -84,13 +85,16 @@ class FaceService:
             raise HTTPException(status_code=500, detail="Failed to process face image")
 
     def enroll_face(self, student_id: str, base64_image: str, current_user_id: str) -> FaceEnrollmentResponse:
-        img = self._decode_image(base64_image)
+        existing = face_repository.get_by_student_id(student_id)
+        is_reenrollment = existing is not None
         
-        # 1. Generate embedding
-        embedding, model_name, model_version = self._validate_and_get_embedding(img)
-        
-        # 2. Store in DB
         try:
+            img = self._decode_image(base64_image)
+            
+            # 1. Generate embedding
+            embedding, model_name, model_version = self._validate_and_get_embedding(img)
+            
+            # 2. Store in DB
             profile = face_repository.upsert_face_profile(
                 student_id=student_id,
                 embedding=embedding,
@@ -102,6 +106,15 @@ class FaceService:
             # 3. Update student status
             face_repository.update_student_enrolled_status(student_id, True)
             
+            action = "FACE_REENROLLMENT" if is_reenrollment else "FACE_ENROLLMENT_CREATED"
+            audit_repository.log_action(
+                user_id=current_user_id,
+                action=action,
+                entity_type="student",
+                entity_id=student_id,
+                metadata={"model": model_name, "version": model_version}
+            )
+            
             return FaceEnrollmentResponse(
                 status="success",
                 student_id=student_id,
@@ -109,6 +122,16 @@ class FaceService:
                 message="Face enrolled successfully"
             )
         except Exception as e:
+            error_detail = str(e.detail) if hasattr(e, "detail") else str(e)
+            audit_repository.log_action(
+                user_id=current_user_id,
+                action="FACE_ENROLLMENT_FAILED",
+                entity_type="student",
+                entity_id=student_id,
+                metadata={"error": error_detail, "is_reenrollment": is_reenrollment}
+            )
+            if isinstance(e, HTTPException):
+                raise
             logger.error(f"Database error during enrollment: {traceback.format_exc()}")
             raise HTTPException(status_code=500, detail="Failed to save face profile")
 
@@ -118,8 +141,15 @@ class FaceService:
             raise HTTPException(status_code=404, detail="Face profile not found")
         return profile
 
-    def delete_enrollment(self, student_id: str):
+    def delete_enrollment(self, student_id: str, current_user_id: str):
         if not face_repository.delete_face_profile(student_id):
             raise HTTPException(status_code=404, detail="Face profile not found")
+        
+        audit_repository.log_action(
+            user_id=current_user_id,
+            action="FACE_ENROLLMENT_DISABLED",
+            entity_type="student",
+            entity_id=student_id
+        )
 
 face_service = FaceService()

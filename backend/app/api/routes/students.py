@@ -46,5 +46,5 @@ def get_student_face_enrollment(student_id: str, current_user: UserInDB = Depend
 def delete_student_face_enrollment(student_id: str, current_user: UserInDB = Depends(require_admin)):
     # Verify access
     student_service.get_by_id(student_id, current_user)
-    face_service.delete_enrollment(student_id)
+    face_service.delete_enrollment(student_id, str(current_user.id))
     return None
