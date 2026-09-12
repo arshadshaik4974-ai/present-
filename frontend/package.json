@@ -24,8 +24,6 @@
     "tailwindcss": "^4.3.3"
   },
   "devDependencies": {
-    "@rolldown/binding-wasm32-wasi": "^1.2.8",
-    "@rolldown/binding-win32-x64-msvc": "^1.2.8",
     "@tailwindcss/vite": "^4.3.3",
     "@types/node": "^24.13.3",
     "@types/react": "^19.2.18",
