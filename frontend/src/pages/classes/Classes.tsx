@@ -1,18 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import { Plus, AlertTriangle } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { PageHeader } from '../../components/common/PageHeader';
 import { Button } from '../../components/common/Button';
 import { DataTable, Column } from '../../components/common/DataTable';
 import { Badge } from '../../components/common/Badge';
 import { Class } from '../../types/class';
 import { classService } from '../../services/classService';
+import { AddClassModal } from '../../components/modals/AddClassModal';
 
 export const Classes: React.FC = () => {
+  const navigate = useNavigate();
   const [classes, setClasses] = useState<Class[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [showAddModal, setShowAddModal] = useState(false);
 
-  useEffect(() => {
+  const loadClasses = () => {
+    setIsLoading(true);
     classService.getAll()
       .then(data => {
         setClasses(data);
@@ -22,6 +27,10 @@ export const Classes: React.FC = () => {
         setError(err.message || 'Unable to load classes.');
         setIsLoading(false);
       });
+  };
+
+  useEffect(() => {
+    loadClasses();
   }, []);
 
   const columns: Column<Class>[] = [
@@ -60,7 +69,7 @@ export const Classes: React.FC = () => {
         title="Classes" 
         description="Manage classes, sections, and class teachers."
         action={
-          <Button variant="primary">
+          <Button variant="primary" onClick={() => setShowAddModal(true)}>
             <Plus className="mr-2 h-4 w-4" /> Add Class
           </Button>
         }
@@ -71,6 +80,13 @@ export const Classes: React.FC = () => {
         columns={columns} 
         keyExtractor={(row) => row.id} 
         isLoading={isLoading}
+        onRowClick={(row) => navigate(row.id)}
+      />
+
+      <AddClassModal
+        isOpen={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        onCreated={loadClasses}
       />
     </div>
   );
