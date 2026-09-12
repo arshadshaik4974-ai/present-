@@ -6,7 +6,7 @@ import { useAuth } from '../../context/AuthContext';
 
 export const Login: React.FC = () => {
   const navigate = useNavigate();
-  const { login, error: authError } = useAuth();
+  const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -20,8 +20,8 @@ export const Login: React.FC = () => {
     try {
       await login(email, password);
       navigate('/');
-    } catch {
-      setError(authError || 'Login failed. Please check your credentials.');
+    } catch (err: any) {
+      setError(err.detail || err.message || 'Login failed. Please check your credentials.');
     } finally {
       setIsSubmitting(false);
     }

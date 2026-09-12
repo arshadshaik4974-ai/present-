@@ -5,7 +5,7 @@
  * No other file should call fetch() directly.
  */
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api/v1';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1';
 const REQUEST_TIMEOUT_MS = 15000;
 
 // ─── Error Types ────────────────────────────────────────────────────────────
@@ -23,7 +23,7 @@ export class ApiError extends Error {
 }
 
 export class NetworkError extends Error {
-  constructor(message = 'Backend unavailable. Please start the backend server.') {
+  constructor(message = 'Cannot connect to the backend server. Please check that the backend is running.') {
     super(message);
     this.name = 'NetworkError';
   }
@@ -104,7 +104,16 @@ async function request<T>(
 
     // On 401, clear invalid auth state
     if (response.status === 401) {
+      detail = 'Invalid email or password.';
       clearStoredToken();
+    } else if (response.status === 403) {
+      detail = 'Your session is not authorized.';
+    } else if (response.status >= 500) {
+      if (detail.toLowerCase().includes('database') || detail.toLowerCase().includes('connection')) {
+        detail = 'The server database is temporarily unavailable.';
+      } else {
+        detail = 'The server encountered an error. Please try again.';
+      }
     }
 
     throw new ApiError(response.status, detail);
