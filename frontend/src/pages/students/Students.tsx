@@ -7,7 +7,10 @@ import { Badge } from '../../components/common/Badge';
 import { Student } from '../../types/student';
 import { studentService } from '../../services/studentService';
 
+import { useNavigate } from 'react-router-dom';
+
 export const Students: React.FC = () => {
+  const navigate = useNavigate();
   const [students, setStudents] = useState<Student[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -90,6 +93,7 @@ export const Students: React.FC = () => {
         columns={columns} 
         keyExtractor={(row) => row.id} 
         isLoading={isLoading}
+        onRowClick={(row) => navigate(row.id)}
       />
     </div>
   );

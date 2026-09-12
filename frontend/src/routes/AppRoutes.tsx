@@ -83,7 +83,9 @@ export const AppRoutes: React.FC = () => {
           <Route element={<RoleRoute allowedRoles={['admin', 'principal']} />}>
             <Route path="/teachers" element={<Teachers />} />
             <Route path="/classes" element={<Classes />} />
+            <Route path="/classes/:classId" element={<ClassDetail />} />
             <Route path="/students" element={<Students />} />
+            <Route path="/students/:studentId" element={<StudentDetail />} />
             <Route path="/students/:studentId/face-enrollment" element={<FaceEnrollment />} />
             <Route path="/attendance" element={<Attendance />} />
             <Route path="/live-ai" element={<LiveAI />} />
