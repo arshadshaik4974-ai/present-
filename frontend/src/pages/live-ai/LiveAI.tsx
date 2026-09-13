@@ -215,7 +215,7 @@ export const LiveAI: React.FC = () => {
     );
   }
 
-  const isInactive = status?.status === 'not_initialized' || status?.status === 'stopped';
+  const isInactive = !status || status?.status === 'not_initialized' || status?.status === 'stopped' || status?.status === 'error';
 
   return (
     <div className="h-[calc(100vh-8rem)] flex flex-col">
@@ -224,6 +224,16 @@ export const LiveAI: React.FC = () => {
         description="Real-time face recognition and attendance tracking."
       />
       
+      {_error && (
+        <div className="mb-4 p-4 bg-red-50 border-l-4 border-red-500 text-red-700 rounded shadow-sm flex items-start gap-3">
+          <AlertTriangle className="h-5 w-5 mt-0.5 shrink-0" />
+          <div>
+            <p className="font-semibold">Connection Error</p>
+            <p className="text-sm">{_error}</p>
+          </div>
+        </div>
+      )}
+
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-4 gap-6 min-h-0">
         
         {/* Left Column: Camera Feed Area */}
