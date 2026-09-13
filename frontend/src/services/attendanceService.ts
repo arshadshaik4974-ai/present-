@@ -21,4 +21,17 @@ export const attendanceService = {
   delete: async (id: string): Promise<void> => {
     return api.delete(`/attendance/${id}`);
   },
+
+  // Sessions
+  getActiveSessions: async (): Promise<any[]> => {
+    return api.get<any[]>('/attendance/sessions/active');
+  },
+
+  startSession: async (class_id: string): Promise<any> => {
+    return api.post<any>('/attendance/sessions', { class_id });
+  },
+
+  endSession: async (session_id: string): Promise<any> => {
+    return api.put<any>(`/attendance/sessions/${session_id}/end`, {});
+  },
 };

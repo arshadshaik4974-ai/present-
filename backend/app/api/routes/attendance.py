@@ -27,3 +27,21 @@ def update_attendance(attendance_id: str, attendance: AttendanceUpdate, current_
 def delete_attendance(attendance_id: str, current_user: UserInDB = Depends(require_teacher)):
     attendance_service.delete(attendance_id, current_user)
     return None
+
+# --- Sessions ---
+
+from pydantic import BaseModel
+class StartSessionRequest(BaseModel):
+    class_id: str
+
+@router.get("/sessions/active")
+def get_active_sessions(current_user: UserInDB = Depends(require_teacher)):
+    return attendance_service.get_active_sessions(current_user)
+
+@router.post("/sessions", status_code=201)
+def start_session(req: StartSessionRequest, current_user: UserInDB = Depends(require_teacher)):
+    return attendance_service.start_session(req.class_id, current_user)
+
+@router.put("/sessions/{session_id}/end")
+def end_session(session_id: str, current_user: UserInDB = Depends(require_teacher)):
+    return attendance_service.end_session(session_id, current_user)

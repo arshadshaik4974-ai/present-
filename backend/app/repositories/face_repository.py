@@ -42,4 +42,12 @@ class FaceRepository:
     def update_student_enrolled_status(self, student_id: str, status: bool):
         supabase.table("students").update({"face_enrolled": status}).eq("id", student_id).execute()
 
+    def get_all_enrolled_profiles_with_embeddings(self) -> List[dict]:
+        # Returns raw dicts since we need the embedding array
+        res = supabase.table("student_face_profiles") \
+            .select("student_id, embedding, students(first_name, last_name, roll_number)") \
+            .eq("enrollment_status", "enrolled") \
+            .execute()
+        return res.data if res.data else []
+
 face_repository = FaceRepository()

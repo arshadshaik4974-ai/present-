@@ -3,7 +3,10 @@
  * Connects to ws://localhost:8000/ws/ai
  */
 
-const WS_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:8000/ws';
+const WS_URL = import.meta.env.VITE_WS_URL || 
+  (import.meta.env.PROD 
+    ? `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/ws` 
+    : 'ws://localhost:8000/ws');
 
 type MessageHandler = (data: string) => void;
 type StatusHandler = (connected: boolean) => void;

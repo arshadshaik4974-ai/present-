@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from app.core.config import settings
-from app.api.routes import health, auth, students, teachers, classes, attendance, analytics, ai, admin
+from app.api.routes import health, auth, students, teachers, classes, attendance, analytics, ai, admin, cameras
 from app.websocket import events
 import os
 
@@ -34,6 +34,7 @@ api_router.include_router(attendance.router, prefix="/attendance", tags=["attend
 api_router.include_router(analytics.router, prefix="/analytics", tags=["analytics"])
 api_router.include_router(ai.router, prefix="/ai", tags=["ai"])
 api_router.include_router(admin.router, prefix="/admin", tags=["admin"])
+api_router.include_router(cameras.router, prefix="/cameras", tags=["cameras"])
 
 app.include_router(api_router)
 app.include_router(events.router, prefix="/ws", tags=["websocket"])
